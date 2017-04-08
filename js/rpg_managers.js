@@ -1606,29 +1606,40 @@ SceneManager._accumulator = 0.0;
 SceneManager.run = function(sceneClass) {
     try {
         this.initialize();
+        // 停止当前场景，加载newSceneClass
         this.goto(sceneClass);
+        // 触发动画继续进行
         this.requestUpdate();
     } catch (e) {
+        // 停止音画，抛出异常
         this.catchException(e);
     }
 };
 
 SceneManager.initialize = function() {
+    // 图形引擎初始化
     this.initGraphics();
+    // 检查文件夹权限可读性
     this.checkFileAccess();
+    // 初始化音乐
     this.initAudio();
+    // 用户输入交互系统 鼠标触屏键盘的事件处理
     this.initInput();
+    // TODO NW.JS 是一个类 node - webkit 库，用于开发桌面应用程序
     this.initNwjs();
+    // TODO 检查插件
     this.checkPluginErrors();
+    // 设置错误处理程序
     this.setupErrorHandlers();
 };
-
+// 图形引擎初始化
 SceneManager.initGraphics = function() {
     var type = this.preferableRendererType();
     Graphics.initialize(this._screenWidth, this._screenHeight, type);
     Graphics.boxWidth = this._boxWidth;
     Graphics.boxHeight = this._boxHeight;
     Graphics.setLoadingImage('img/system/Loading.png');
+    // 显示帧速率
     if (Utils.isOptionValid('showfps')) {
         Graphics.showFps();
     }
@@ -1636,10 +1647,11 @@ SceneManager.initGraphics = function() {
         this.checkWebGL();
     }
 };
-
+// 确定渲染模式
 SceneManager.preferableRendererType = function() {
     if (Utils.isOptionValid('canvas')) {
         return 'canvas';
+        // 检查webgl字段是否在query中
     } else if (Utils.isOptionValid('webgl')) {
         return 'webgl';
     } else if (this.shouldUseCanvasRenderer()) {
@@ -1648,17 +1660,17 @@ SceneManager.preferableRendererType = function() {
         return 'auto';
     }
 };
-
+// 检查终端是否为手机
 SceneManager.shouldUseCanvasRenderer = function() {
     return Utils.isMobileDevice();
 };
-
+// 检查浏览器是否支持webgl
 SceneManager.checkWebGL = function() {
     if (!Graphics.hasWebGL()) {
         throw new Error('Your browser does not support WebGL.');
     }
 };
-
+// 检查文件可读性，通过对需要的最后一个文件进行请求，来判断文件是否已经加载
 SceneManager.checkFileAccess = function() {
     if (!Utils.canReadGameFiles()) {
         throw new Error('Your browser does not allow to read local files.');
@@ -1673,11 +1685,14 @@ SceneManager.initAudio = function() {
 };
 
 SceneManager.initInput = function() {
+    // 键盘
     Input.initialize();
+    //TODO LEV3 鼠标与触屏
     TouchInput.initialize();
 };
 
 SceneManager.initNwjs = function() {
+    // 检查是否是nwjs环境
     if (Utils.isNwjs()) {
         var gui = require('nw.gui');
         var win = gui.Window.get();
@@ -1695,7 +1710,10 @@ SceneManager.checkPluginErrors = function() {
 };
 
 SceneManager.setupErrorHandlers = function() {
+    // window的错误处理事件，在 运行错误 语法错误时会触发
+    // 停止所有进程
     window.addEventListener('error', this.onError.bind(this));
+    // 绑定F5刷新 F8 开启开发者工具
     document.addEventListener('keydown', this.onKeyDown.bind(this));
 };
 
@@ -1734,6 +1752,7 @@ SceneManager.onError = function(e) {
 };
 
 SceneManager.onKeyDown = function(event) {
+    // 在没有按着 ctrl 与 alt 的状态下
     if (!event.ctrlKey && !event.altKey) {
         switch (event.keyCode) {
         case 116:   // F5

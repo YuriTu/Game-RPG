@@ -2475,8 +2475,11 @@ function Input() {
  * @method initialize
  */
 Input.initialize = function() {
+    // 所有数据归0
     this.clear();
+    // TODO
     this._wrapNwjsAlert();
+    // 绑定对应的事件
     this._setupEventHandlers();
 };
 
@@ -2559,7 +2562,9 @@ Input.gamepadMapper = {
  * @method clear
  */
 Input.clear = function() {
+    // 现在正在按的键位是哪个
     this._currentState = {};
+
     this._previousState = {};
     this._gamepadStates = [];
     this._latestButton = null;
@@ -2730,6 +2735,7 @@ Input._wrapNwjsAlert = function() {
 Input._setupEventHandlers = function() {
     document.addEventListener('keydown', this._onKeyDown.bind(this));
     document.addEventListener('keyup', this._onKeyUp.bind(this));
+    // 失焦清除状态
     window.addEventListener('blur', this._onLostFocus.bind(this));
 };
 
@@ -2743,6 +2749,7 @@ Input._onKeyDown = function(event) {
     if (this._shouldPreventDefault(event.keyCode)) {
         event.preventDefault();
     }
+    // 144为numLock键 数字锁定键
     if (event.keyCode === 144) {    // Numlock
         this.clear();
     }
@@ -2783,6 +2790,7 @@ Input._onKeyUp = function(event) {
     if (buttonName) {
         this._currentState[buttonName] = false;
     }
+    // 似乎是类似webkit的一种web引擎 其keyCode比较特殊
     if (event.keyCode === 0) {  // For QtWebEngine on OS X
         this.clear();
     }
@@ -7162,8 +7170,9 @@ WebAudio.prototype.initialize = function(url) {
     this._load(url);
     this._url = url;
 };
-
+// 浏览器音频模块
 WebAudio._context        = null;
+
 WebAudio._masterGainNode = null;
 WebAudio._initialized    = false;
 WebAudio._unlocked       = false;
@@ -7180,8 +7189,11 @@ WebAudio.initialize = function(noAudio) {
     if (!this._initialized) {
         if (!noAudio) {
             this._createContext();
+            // 检查可播放的音频类型
             this._detectCodecs();
+            // 音量模块
             this._createMasterGainNode();
+            // TODO LEV4 事件系统
             this._setupEventHandlers();
         }
         this._initialized = true;
@@ -7225,6 +7237,7 @@ WebAudio.canPlayM4a = function() {
 WebAudio._createContext = function() {
     try {
         if (typeof AudioContext !== 'undefined') {
+            // 浏览器音频接口
             this._context = new AudioContext();
         } else if (typeof webkitAudioContext !== 'undefined') {
             this._context = new webkitAudioContext();
@@ -7255,8 +7268,11 @@ WebAudio._detectCodecs = function() {
 WebAudio._createMasterGainNode = function() {
     var context = WebAudio._context;
     if (context) {
+        // 创建一个GainNode， 音频音量管理模块
         this._masterGainNode = context.createGain();
+        // 音量 1为100%
         this._masterGainNode.gain.value = 1;
+        // context.destination 是扬声器类的音频设备
         this._masterGainNode.connect(context.destination);
     }
 };
